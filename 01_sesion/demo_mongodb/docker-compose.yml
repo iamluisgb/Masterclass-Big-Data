@@ -1,0 +1,38 @@
+# docker-compose.yml
+version: '3'
+services:
+  mongodb:
+    image: mongodb/mongodb-community-server
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: usuario
+      MONGO_INITDB_ROOT_PASSWORD: micontraseña
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+    networks:
+      - mongo_network
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: usuario
+      ME_CONFIG_MONGODB_ADMINPASSWORD: micontraseña
+      ME_CONFIG_MONGODB_URL: mongodb://usuario:micontraseña@mongodb:27017/
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: adminpass
+    depends_on:
+      - mongodb
+    networks:
+      - mongo_network
+
+networks:
+  mongo_network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
